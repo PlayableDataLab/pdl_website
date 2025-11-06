@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Playable Data Lab — Portfolio</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- React + ReactDOM + Babel (local files) -->
+    <script src="react.production.min.js"></script>
+    <script src="react-dom.production.min.js"></script>
+    <script src="babel.min.js"></script>
+
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Helvetica, Arial, sans-serif;
+        background-color: #fafafa;
+      }
+
+      video {
+        transition: opacity 0.4s ease;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <!-- ✨ Content configuration (static data only) -->
+    <script src="content.js"></script>
+
+    <!-- React App -->
+    <script type="text/babel">
+      const { useState, useMemo, useRef } = React;
+
+      // Pull content from external file (content.js)
+      const {
+        INTRO_TEXT,
+        BRAND,
+        SOCIALS,
+        PROJECTS,
+      } = window.PORTFOLIO_CONTENT || {};
+
+      // ================================
+      // UI COMPONENTS
+      // ================================
+
+      function TagChip({ label, active, onClick }) {
+        return (
+          <button
+            onClick={onClick}
+            className={
+              "px-3 py-1 rounded-full border text-sm transition hover:shadow " +
+              (active
+                ? "bg-black text-white border-black"
+                : "bg-white text-gray-700 border-gray-300")
+            }
+          >
+            {label}
+          </button>
+        );
+      }
+
+      function ProjectCard({ project }) {
+        const vidRef = useRef(null);
+        const hasVideo = !!project.videoUrl;
+
+        function handleEnter() {
+          if (hasVideo && vidRef.current) {
+            const v = vidRef.current;
+            v.currentTime = 0;
+            v.play().catch(() => {});
+          }
+        }
+
+        function handleLeave() {
+          if (vidRef.current) {
+            vidRef.current.pause();
+          }
+        }
+
+        return (
+          <article
+            className="group rounded-2xl bg-white border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition relative cursor-pointer"
+            onMouseEnter={handleEnter}
+            onMouseLeave={handleLeave}
+          >
+            <div className="aspect-[4/3] w-full overflow-hidden bg-neutral-100">
+              {hasVideo ? (
+                <div className="relative h-full w-full">
+                  <img
+                    src={project.imageUrl}
+                    alt={project.title}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <video
+                    ref={vidRef}
+                    src={project.videoUrl}
+                    muted
+                    playsInline
+                    className="absolute inset-0 h-full w-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  />
+                </div>
+              ) : (
+                <img
+                  src={project.imageUrl}
+                  alt={project.title}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              )}
+            </div>
+
+            <div className="p-4 space-y-2">
+              <h3 className="font-semibold text-base leading-snug">
+                {project.title}
+              </h3>
+              {project.tags && project.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {project.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-700"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {project.githubUrl && (
+                <a
+                  href={project.githubUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-neutral-900 underline underline-offset-2 decoration-neutral-400 hover:decoration-neutral-900"
+                >
+                  View project
+                  <span aria-hidden>↗</span>
+                </a>
+              )}
+            </div>
+          </article>
+        );
+      }
+
+      // ================================
+      // MAIN APP
+      // ================================
+
+      function PortfolioApp() {
+        const [activeTag, setActiveTag] = useState("Todos");
+        const [query, setQuery] = useState("");
+
+        const allTags = useMemo(() => {
+          const tags = new Set();
+          PROJECTS.forEach((p) => p.tags?.forEach((t) => tags.add(t)));
+          return ["Todos", ...Array.from(tags).sort((a, b) => a.localeCompare(b))];
+        }, []);
+
+        const filteredProjects = useMemo(() => {
+          return PROJECTS.filter((p) => {
+            const byTag = activeTag === "Todos" || p.tags?.includes(activeTag);
+            const byQuery = p.title.toLowerCase().includes(query.toLowerCase());
+            return byTag && byQuery;
+          });
+        }, [activeTag, query]);
+
+        return (
+          <div className="min-h-screen bg-neutral-50 text-neutral-900">
+            {/* Header */}
+            <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-200">
+              <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4 justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-28 h-14 rounded-xl bg-white border border-gray-200 grid place-items-center overflow-hidden">
+                    {BRAND.logoUrl ? (
+                      <img
+                        src={BRAND.logoUrl}
+                        alt={BRAND.name}
+                        className="h-full w-full object-contain"
+                      />
+                    ) : (
+                      <span className="text-xs font-semibold tracking-wide uppercase text-neutral-500">
+                        {BRAND.name}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.2em] text-neutral-500">
+                      Portfolio
+                    </div>
+                    <h1 className="text-lg font-semibold leading-tight">
+                      {BRAND.name}
+                    </h1>
+                    <p className="text-xs text-neutral-500">{BRAND.subtitle}</p>
+                  </div>
+                </div>
+
+                {SOCIALS && SOCIALS.length > 0 && (
+                  <nav className="flex flex-wrap gap-2 text-xs">
+                    {SOCIALS.map((s) => (
+                      <a
+                        key={s.id}
+                        href={s.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3 py-1 rounded-full border border-neutral-300 bg-white hover:bg-neutral-900 hover:text-white transition"
+                      >
+                        {s.label}
+                      </a>
+                    ))}
+                  </nav>
+                )}
+              </div>
+            </header>
+
+            {/* Main Content */}
+            <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+              {/* Intro + Filters */}
+              <section className="space-y-4">
+                <p className="text-sm text-neutral-700 leading-relaxed max-w-3xl">
+                  {INTRO_TEXT}
+                </p>
+
+                <div className="flex flex-wrap gap-3 items-center">
+                  <div className="flex flex-wrap gap-2">
+                    {allTags.map((tag) => (
+                      <TagChip
+                        key={tag}
+                        label={tag}
+                        active={tag === activeTag}
+                        onClick={() => setActiveTag(tag)}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="ml-auto w-full sm:w-64">
+                    <input
+                      type="text"
+                      placeholder="Search by name…"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      className="w-full rounded-full border border-neutral-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                    />
+                  </div>
+                </div>
+              </section>
+
+              {/* Grid */}
+              <section>
+                {filteredProjects.length === 0 ? (
+                  <div className="text-sm text-neutral-500">
+                    No projects match that filter yet.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {filteredProjects.map((project) => (
+                      <ProjectCard key={project.id} project={project} />
+                    ))}
+                  </div>
+                )}
+              </section>
+            </main>
+
+            {/* Footer */}
+            <footer className="max-w-6xl mx-auto px-4 py-10 text-sm text-gray-500">
+              © {new Date().getFullYear()} — Static portfolio built with React + Tailwind.
+            </footer>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<PortfolioApp />);
+    </script>
+  </body>
+</html>
