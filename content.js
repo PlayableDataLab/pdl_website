@@ -37,34 +37,36 @@ window.PORTFOLIO_CONTENT = {
       title: "Spider Bus Accessibility",
       imageUrl: "media/001_spider-bus.jpg", // poster image
       videoUrl: "media/001_spider-bus.mp4", // optional
-      tags: ["#30DayMapChallenge", "Globe", "Mapbox", "Web App"],
+      tags: ["Canarias", "Mobility", "Web"],
       githubUrl: "https://playabledatalab.github.io/001_spider-bus/",
+      // badge: "New", // optional – uncomment / edit if you want to highlight it
     },
     {
       id: "snake-car",
       title: "Snake Car!",
       imageUrl: "media/002_snake-car.jpg",
       videoUrl: "media/002_snake-car.mp4",
-      tags: ["Game", "GeoJSON", "Playful Data"],
-      githubUrl: "https://playabledatalab.github.io/001_spider-bus/",
+      tags: ["Classic", "Arcade", "Canarias", "Mobility", "Web"],
+      githubUrl: "https://playabledatalab.github.io/002_snake-car/",
     },
     {
       id: "nycha-spider",
       title: "Sort the land",
       imageUrl: "media/003_sort-the-land.jpg",
-      videoUrl: "media/003_sort-the-land.mp4", 
-      tags: ["New York", "Proximity", "Lines"],
+      videoUrl: "media/003_sort-the-land.mp4",
+      tags: ["Card", "Quizz", "Canarias", "Web", "Mobile"],
       githubUrl: "https://playabledatalab.github.io/003_sort-the-land/",
+      // no badge → normal card
     },
     {
       id: "buscaminas",
       title: "Tourist Minesweeper",
       imageUrl: "media/004_tourist-minesweeper.jpg",
-      videoUrl: "media/004_tourist-minesweeper.mp4", 
-      tags: ["New York", "Proximity", "Lines"],
+      videoUrl: "media/004_tourist-minesweeper.mp4",
+      tags: ["Arcade", "Classic", "Tourism", "Web"],
       githubUrl: "https://playabledatalab.github.io/004_tourist-minesweeper/",
+      badge: "Most Played!", // 🆕 highlighted
     },
-    
 
     // 🔽 Add more projects here:
     // {
@@ -74,6 +76,7 @@ window.PORTFOLIO_CONTENT = {
     //   videoUrl: "media/your-video.mp4", // or "" if none
     //   tags: ["Tag A", "Tag B"],
     //   githubUrl: "https://github.com/...",
+    //   badge: "Prototype", // optional
     // },
   ],
 };

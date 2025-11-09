@@ -71,6 +71,13 @@
         const vidRef = useRef(null);
         const hasVideo = !!project.videoUrl;
 
+        // Build a shareable URL with hash (#project-id)
+        const shareUrl =
+          window.location.origin +
+          window.location.pathname +
+          "#" +
+          project.id;
+
         function handleEnter() {
           if (hasVideo && vidRef.current) {
             const v = vidRef.current;
@@ -85,12 +92,53 @@
           }
         }
 
+        async function handleShare(e) {
+          e.stopPropagation();
+
+          const shareText = `Check out "${project.title}" on Playable Data Lab`;
+
+          if (navigator.share) {
+            try {
+              await navigator.share({
+                title: project.title,
+                text: shareText,
+                url: shareUrl,
+              });
+              return;
+            } catch (err) {
+              // user cancelled, ignore
+            }
+          }
+
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            try {
+              await navigator.clipboard.writeText(shareUrl);
+              alert("Link copied to clipboard!");
+              return;
+            } catch (err) {
+              // fall through to prompt
+            }
+          }
+
+          window.prompt("Copy this link:", shareUrl);
+        }
+
         return (
           <article
+            id={project.id}
             className="group rounded-2xl bg-white border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition relative cursor-pointer"
             onMouseEnter={handleEnter}
             onMouseLeave={handleLeave}
           >
+            {/* Highlight badge (Latest!, Most played!, etc.) */}
+            {project.badge && (
+              <div className="absolute top-3 left-3 z-10">
+                <span className="inline-flex items-center rounded-full bg-black/80 text-white text-xs px-2 py-0.5">
+                  {project.badge}
+                </span>
+              </div>
+            )}
+
             <div className="aspect-[4/3] w-full overflow-hidden bg-neutral-100">
               {hasVideo ? (
                 <div className="relative h-full w-full">
@@ -120,6 +168,7 @@
               <h3 className="font-semibold text-base leading-snug">
                 {project.title}
               </h3>
+
               {project.tags && project.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1">
                   {project.tags.map((tag) => (
@@ -132,17 +181,34 @@
                   ))}
                 </div>
               )}
-              {project.githubUrl && (
-                <a
-                  href={project.githubUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 text-sm font-medium text-neutral-900 underline underline-offset-2 decoration-neutral-400 hover:decoration-neutral-900"
+
+              <div
+                className={
+                  "flex items-center gap-2 pt-1 " +
+                  (project.githubUrl ? "justify-between" : "justify-end")
+                }
+              >
+                {project.githubUrl && (
+                  <a
+                    href={project.githubUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-neutral-900 underline underline-offset-2 decoration-neutral-400 hover:decoration-neutral-900"
+                  >
+                    View project
+                    <span aria-hidden>↗</span>
+                  </a>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="inline-flex items-center gap-1 rounded-full border border-neutral-300 px-3 py-1 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-900 hover:text-white transition"
                 >
-                  View project
-                  <span aria-hidden>↗</span>
-                </a>
-              )}
+                  Share
+                  <span aria-hidden>⤴</span>
+                </button>
+              </div>
             </div>
           </article>
         );
