@@ -67,7 +67,7 @@ window.PORTFOLIO_CONTENT = {
       githubUrl: "https://playabledatalab.github.io/004_tourist-minesweeper/",
       badge: "Most Played!", // 🆕 highlighted
     },
-        {
+    {
       id: "hangman",
       title: "Geohangman",
       imageUrl: "media/005_geohangman.jpg",
